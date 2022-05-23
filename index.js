@@ -17,12 +17,23 @@ const run = async() => {
     try {
         await client.connect();
         const carCollection = client.db('carCollection').collection('products');
+        const reviewsCollection = client.db('carCollection').collection('reviews');
 
         /* -------------------------------------- car Collection --------------------------------------------- */
         app.get('/products', async (req, res) => {
             const result = await carCollection.find().toArray();
             res.send(result);
-        })
+        });
+
+        /* -------------------------------------- reviews Collection --------------------------------------- */
+        app.get('/reviews', async (req, res) => {
+            const result = await reviewsCollection.find().toArray();
+            res.send(result);
+        });
+
+        
+
+
     }
     finally {
         
