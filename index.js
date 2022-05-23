@@ -24,11 +24,11 @@ const run = async() => {
             const result = await carCollection.find().toArray();
             res.send(result);
         });
-        
-        app.get('/products/:id', async (req, res) => {
+
+        app.get('/order/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const order = await carCollection.findOne(query).toArray();
+            const order = await carCollection.findOne(query);
             res.send(order);
         })
 
