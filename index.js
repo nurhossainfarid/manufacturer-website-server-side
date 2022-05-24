@@ -10,6 +10,23 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json())
 
+// jwt verify 
+const verifyJWT = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).send({message: 'UnAuthorized Access'})
+    } 
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN_PASSWORD, function (err, decoded) {
+        if (err) {
+            return res.status(403).send({message: 'Forbidden Access'})
+        }
+        req.decoded = decoded;
+        next();
+    })
+}
+
+
 
 // Mongodb server
 const uri = `mongodb+srv://${process.env.ACCESS_USER}:${process.env.ACCESS_PASSWORD}@cluster0.nd7ni.mongodb.net/?retryWrites=true&w=majority`;
@@ -61,12 +78,25 @@ const run = async() => {
             res.send({result, token})
         })
 
+
         /* -------------------------------------- order Collection --------------------------------------- */
+        app.get('/orders', verifyJWT, async (req, res) => {
+            const email = req.query.userEmail;
+            const decodedEmail = req.decoded.userEmail;
+            if (decodedEmail === email) {
+                const result = await orderCollection.find({email: email}).toArray();
+                res.send(result);
+            }
+            else {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+        })
         app.post('/orders', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
             res.send(result);
         })
+
 
         /* -------------------------------------- comments Collection --------------------------------------- */
         app.post('/comments', async (req, res) => {
