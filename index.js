@@ -21,6 +21,9 @@ const run = async() => {
         const reviewsCollection = client.db('carCollection').collection('reviews');
         const userCollection = client.db('carCollection').collection('users');
         const orderCollection = client.db('carCollection').collection('orders');
+        const commentCollection = client.db('carCollection').collection('comments');
+        const profileCollection = client.db('profileCollection').collection('profiles');
+
 
         /* -------------------------------------- car Collection --------------------------------------------- */
         app.get('/products', async (req, res) => {
@@ -42,26 +45,51 @@ const run = async() => {
         });
 
         /* -------------------------------------- users Collection --------------------------------------- */
-        // app.put('user/:email', async (req, res) => {
-        //     const email = req.params.email;
-        //     const user = req.body;
-        //     const filter = { email: email };
-        //     // this option instructs the method to create a document if no documents match the filter
-        //     const options = { upsert: true };
-        //     // create a document that sets the plot of the movie
-        //     const updateDoc = {
-        //         $set: user
-        //     }
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            // this option instructs the method to create a document if no documents match the filter
+            const options = { upsert: true };
+            // create a document that sets the plot of the movie
+            const updateDoc = {
+                $set: user
+            }
 
-        //     const result = await userCollection.updateOne(filter, updateDoc, options);
-        //     res.send(result)
-        // })
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_PASSWORD, { expiresIn: '1d' });
+            res.send({result, token})
+        })
 
         /* -------------------------------------- order Collection --------------------------------------- */
         app.post('/orders', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
             res.send(result);
+        })
+
+        /* -------------------------------------- comments Collection --------------------------------------- */
+        app.post('/comments', async (req, res) => {
+            const comment = req.body;
+            const result = await commentCollection.insertOne(comment);
+            res.send(result);
+        })
+
+
+        /* -------------------------------------- users Collection --------------------------------------- */
+        app.put('/profile/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email};
+            // this option instructs the method to create a document if no documents match the filter
+            const options = { upsert: true };
+            // create a document that sets the plot of the movie
+            const updateDoc = {
+                $set: user
+            }
+
+            const result = await profileCollection.updateMany(filter, updateDoc, options);
+            res.send({result})
         })
 
     }
