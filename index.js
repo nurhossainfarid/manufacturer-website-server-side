@@ -2,6 +2,7 @@ const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config();
+const jwt = require('jsonwebtoken');
 const app = express()
 const port = process.env.PORT || 5000;
 
@@ -18,6 +19,8 @@ const run = async() => {
         await client.connect();
         const carCollection = client.db('carCollection').collection('products');
         const reviewsCollection = client.db('carCollection').collection('reviews');
+        const userCollection = client.db('carCollection').collection('users');
+        const orderCollection = client.db('carCollection').collection('orders');
 
         /* -------------------------------------- car Collection --------------------------------------------- */
         app.get('/products', async (req, res) => {
@@ -38,8 +41,28 @@ const run = async() => {
             res.send(result);
         });
 
-        
+        /* -------------------------------------- users Collection --------------------------------------- */
+        // app.put('user/:email', async (req, res) => {
+        //     const email = req.params.email;
+        //     const user = req.body;
+        //     const filter = { email: email };
+        //     // this option instructs the method to create a document if no documents match the filter
+        //     const options = { upsert: true };
+        //     // create a document that sets the plot of the movie
+        //     const updateDoc = {
+        //         $set: user
+        //     }
 
+        //     const result = await userCollection.updateOne(filter, updateDoc, options);
+        //     res.send(result)
+        // })
+
+        /* -------------------------------------- order Collection --------------------------------------- */
+        app.post('/orders', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result);
+        })
 
     }
     finally {
