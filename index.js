@@ -62,6 +62,10 @@ const run = async() => {
         });
 
         /* -------------------------------------- users Collection --------------------------------------- */
+        app.get('/user', verifyJWT, async (req, res) => {
+            const result = await userCollection.find().toArray();
+            res.send(result);
+        })
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body;
@@ -91,9 +95,17 @@ const run = async() => {
                 return res.status(403).send({ message: 'forbidden access' });
             }
         })
+
         app.post('/orders', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
+            res.send(result);
+        })
+
+        app.delete('/orders/:id',verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await orderCollection.deleteOne(filter);
             res.send(result);
         })
 
