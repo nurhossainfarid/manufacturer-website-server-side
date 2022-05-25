@@ -48,11 +48,11 @@ const run = async() => {
             res.send(result);
         });
 
-        app.get('/order/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const order = await carCollection.findOne(query);
-            res.send(order);
+        app.post('/products',verifyJWT, async (req, res) => {
+            const add = req.body;
+            console.log(add);
+            const result = await carCollection.insertOne(add);
+            res.send(result);
         })
 
         /* -------------------------------------- reviews Collection --------------------------------------- */
@@ -65,7 +65,7 @@ const run = async() => {
         app.get('/user', verifyJWT, async (req, res) => {
             const result = await userCollection.find().toArray();
             res.send(result);
-        })
+        });
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body;
@@ -79,11 +79,23 @@ const run = async() => {
 
             const result = await userCollection.updateOne(filter, updateDoc, options);
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_PASSWORD, { expiresIn: '1d' });
-            res.send({result, token})
-        })
+            res.send({ result, token })
+        });
 
 
         /* -------------------------------------- order Collection --------------------------------------- */
+        app.get('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const order = await carCollection.findOne(query);
+            res.send(order);
+        })
+
+        app.get('/orders', async (req, res) => {
+            const result = await orderCollection.find().toArray();
+            res.send(result);
+        })
+
         app.get('/orders', verifyJWT, async (req, res) => {
             const email = req.query.userEmail;
             const decodedEmail = req.decoded.userEmail;
