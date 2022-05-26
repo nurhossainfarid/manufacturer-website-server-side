@@ -40,7 +40,8 @@ const run = async() => {
         const userCollection = client.db('carCollection').collection('users');
         const orderCollection = client.db('carCollection').collection('orders');
         const commentCollection = client.db('carCollection').collection('comments');
-        const brandCollection = client.db('carCollection').collection('brands')
+        const offerCollection = client.db('carCollection').collection('offer');
+        const brandCollection = client.db('carCollection').collection('brands');
         const profileCollection = client.db('profileCollection').collection('profiles');
 
         const verifyAdmin = async (req, res, next) => {
@@ -176,6 +177,12 @@ const run = async() => {
         app.post('/comments', async (req, res) => {
             const comment = req.body;
             const result = await commentCollection.insertOne(comment);
+            res.send(result);
+        })
+
+        /* -------------------------------------- offer Collection --------------------------------------- */
+        app.get('/offer', async (req, res) => {
+            const result = await offerCollection.find().toArray();
             res.send(result);
         })
 
