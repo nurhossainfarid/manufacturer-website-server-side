@@ -1,10 +1,11 @@
+require('dotenv').config();
 const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
-require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const app = express()
 const port = process.env.PORT || 5000;
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // middleware
 app.use(cors());
@@ -51,6 +52,19 @@ const run = async() => {
               res.status(403).send({ message: 'forbidden' });
             }
         }
+
+        app.post('/create-payment-intent',verifyJWT, async(req, res) =>{
+            const service = req.body;
+            const price = service.price;
+            console.log(price);
+            const amount = price*100;
+            const paymentIntent = await stripe.paymentIntents.create({
+              amount : amount,
+              currency: 'usd',
+              payment_method_types:['card']
+            });
+            res.send({clientSecret: paymentIntent.client_secret})
+          });
 
 
         /* -------------------------------------- car Collection --------------------------------------------- */
@@ -137,6 +151,13 @@ const run = async() => {
             }
         })
 
+        app.get('/orders/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.findOne(query);
+            res.send(result);
+        })
+
         app.post('/orders', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
@@ -149,7 +170,6 @@ const run = async() => {
             const result = await orderCollection.deleteOne(filter);
             res.send(result);
         })
-
 
         /* -------------------------------------- comments Collection --------------------------------------- */
         app.post('/comments', async (req, res) => {
