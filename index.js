@@ -181,7 +181,7 @@ const run = async() => {
 
         /* -------------------------------------- brands Collection --------------------------------------- */
         app.get('/brands', async (req, res) => {
-            const result = await carCollection.find().toArray();
+            const result = await brandCollection.find().toArray();
             res.send(result);
         })
 
