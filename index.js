@@ -8,7 +8,7 @@ const port = process.env.PORT || 5000;
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // middleware
-app.use(cors());
+app.use(cors({ origin: "https://car-bro-4747.firebaseapp.com"}));
 app.use(express.json())
 
 // jwt verify 
